@@ -3,11 +3,6 @@
 	By Novixx Systems
 		If you worked on this file, add yourself
 		to the CREDITS file in the root.
-	
-	
-CRASH.LLL MODIFICATION HISTORY:
-	08/11/22 Created
-	08/12/22 Add newline
 ;
 EXTERN MOVE_CURSOR;
 EXTERN ARGA;

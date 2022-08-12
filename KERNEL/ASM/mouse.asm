@@ -14,6 +14,7 @@
 ; ==================================================================
 
 EXTERN os_wait_for_key
+EXTERN os_string_to_int
 
 GLOBAL mouselib_range
 GLOBAL mouselib_freemove

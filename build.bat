@@ -18,5 +18,4 @@ wsl ld86 -d -T0 -o rmnkrnl.sys main.obj strings.obj disk.obj str.obj menu.obj cr
 copy boot floppy.img
 imdisk -a -f floppy.img -s 1440K -m B:
 copy rmnkrnl.sys B:
-copy rmnkrnl.sys B:\RAMENE.COA
 imdisk -D -m B:

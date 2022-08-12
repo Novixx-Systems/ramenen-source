@@ -1,0 +1,241 @@
+#
+ Ramenen - High Performance operating system for the 80386 
+	By Novixx Systems
+		If you worked on this file, add yourself
+		to the CREDITS file in the root.
+;
+
+EXTERN HEAD;
+EXTERN BOTT;
+EXTERN ARG;
+
+EXTERN mouselib_range;
+EXTERN mouselib_freemove;
+EXTERN mouselib_locate;
+EXTERN mouselib_scale;
+EXTERN mouselib_int_cursor_x;
+EXTERN mouselib_int_cursor_y;
+
+EXTERN os_get_file_list;
+EXTERN os_load_file;
+EXTERN os_fatal_error;
+# Code ;
+PUBLIC MENU_MAIN;
+
+VAR TESTFN == "RMNKRNL.SYS",0;
+ASM *FILE_LIST TIMES 1024 DB 0*;
+ASM *TMPBUFF TIMES 128 DB 0*;
+VAR FAILED_TO_LOAD_MENU == "Could not load the menu",0;
+VAR DONE == 0;
+VAR DESKTOPITEMS == 1;
+VAR TOTALITEMS == 1;
+VAR NL == 13,10,0;
+VAR SPACES == "   ";
+VAR GOING_TO_RUN == 0;
+VAR SELECTEDINDEX == 1;
+VAR DOING_RUN == 0;
+VAR TIMESTODEC == 0;
+
+DEF MENU_MAIN();
+	# Start drawing menu ;
+	MENU_DRAW_HEADER() $ BOTT;
+	
+	IF BYTE[DONE] = 0;
+		# If the menu failed to load... ;
+		os_fatal_error() $ FAILED_TO_LOAD_MENU;
+	FI;
+
+	SET DH = 3;
+	SET DL = 3;
+	MOVE_CURSOR();
+	
+	SET AL = ">";
+	SET AH = 0x0E;
+	INT(0x10);
+
+	# Get all files ;
+	SET AX = FILE_LIST;
+	os_get_file_list();
+	# Put buffer into SI ;
+	SET SI = FILE_LIST;
+	GOTO MENU_ITEM_LOOP;
+
+	# Get all files ;
+	SET AX = FILE_LIST;
+	os_get_file_list();
+	# Put buffer into SI ;
+	SET SI = FILE_LIST;
+	
+	DEF MENU_ITEM_LOOP();
+		# LOAD STRING BYTE ;
+		ASM *LODSB*;
+		
+		IF AL = 0;
+			GOTO CONTINUE_MENU;
+		FI;
+		# Go to next file name ;
+		IF AL = ",";
+			# Increment amount of DESKTOP ITEMS ;
+			BYTE[DESKTOPITEMS]++;
+			BYTE[TOTALITEMS]++;
+		
+			# Print 3 spaces ;
+			SET AL = 0x20;
+			INT(0x10);
+			SET AL = 0x20;
+			INT(0x10);
+			IF BYTE[DESKTOPITEMS] = 6;
+				SET AL = 13;
+				INT(0x10);
+				SET AL = 10;
+				INT(0x10);
+				SET AL = 13;
+				INT(0x10);
+				SET AL = 10;
+				INT(0x10);
+				SET BYTE[DESKTOPITEMS] = 1;
+			FI;
+			# Display '>' ;
+			SET AL = ">";
+			SET AH = 0x0E;
+			INT(0x10);
+			GOTO MENU_ITEM_LOOP;
+		FI;
+		SET AH = 0x0E;
+		INT(0x10);
+
+		GOTO MENU_ITEM_LOOP;
+	#
+		CONTINUE_MENU is for exiting the MENU_ITEM_LOOP
+	;
+	DEF CONTINUE_MENU();
+
+	SET BYTE[TOTALITEMS] = 1;
+	SET BYTE[DESKTOPITEMS] = 1;
+	MOUSE_LOOP();
+	GOTO MENU_MAIN;
+	
+# Cursor key init ;
+DEF MOUSE_LOOP();
+	SET Ax = 0;
+	SET Bx = 0;
+	SET Cx = 79;
+	SET Dx = 24;
+	mouselib_range();
+	SET DH = 3;
+	SET DL = 2;
+	mouselib_scale();
+	mouselib_freemove();
+	ASM *jnc earnposi*;
+	GOTO MOUSE_LOOP;
+# Earn cursor position ;
+DEF earnposi();
+	mouselib_locate();
+	SET DH = [mouselib_int_cursor_y];
+	SET DL = [mouselib_int_cursor_x];
+	MOVE_CURSOR();
+	SET AH = 08h;
+	INT(0x10);
+	# User clicked on shortcut? ;
+	IF AL = ">";
+		GOTO EXECUTE_LOOP;
+	FI;
+	
+# Exec pt1 ;
+DEF EXECUTE_LOOP();
+	DL++;
+	MOVE_CURSOR();
+	SET AH = 8;
+	INT(0x10);
+	IF AL = 0x20;
+		GOTO EXEC_IT;
+	FI;
+	SET [SI] = AL;
+	SI++;
+	BYTE[TIMESTODEC]++;
+	GOTO EXECUTE_LOOP;
+	
+# Exec pt2 ;
+DEF EXEC_IT();
+	SET BYTE[SI] = 0;
+	SI++;
+	BYTE[TIMESTODEC]++;
+	DEF LOOPERLOOP();
+		IF BYTE[TIMESTODEC] = 0;
+			GOTO ACT_EXEC_IT;
+		FI;
+		BYTE[TIMESTODEC]--;
+		SI--;
+		GOTO LOOPERLOOP;
+		
+# Exec pt3 (FINAL) ;
+DEF ACT_EXEC_IT();
+	SET AX = SI;
+	# Where to load the program file ;
+	SET CX = 32768;
+	os_load_file();
+	32768();
+	RETURN;
+
+# I have no idea why this def was so buggy but it works now! ;
+DEF MENU_DRAW_HEADER();
+	SET DH = 0;
+	SET DL = 0;
+	MOVE_CURSOR();
+
+	# Draw top-bar ;
+	SET AH = 09H;
+	SET BH = 00H;
+	SET CX = 80;
+	SET BL = 01110000b;
+	SET AL = 0x20;
+	INT(10H);
+
+	SET DH = 1;
+	SET DL = 0;
+	MOVE_CURSOR();
+
+	SET AH = 09H;
+	SET CX = 1840;
+	SET BL = 3FH;
+	SET BH = 00H;
+	SET AL = 0x20;
+	INT(10H);
+
+	SET DH = 24;
+	SET DL = 0;
+	MOVE_CURSOR();
+
+	# Draw bottom-bar ;
+	SET AH = 09H;
+	SET BH = 00H;
+	SET CX = 80;
+	SET BL = 01110000b;
+	SET AL = 0x20;
+	INT(10H);
+
+	SET DH = 0;
+	SET DL = 0;
+	MOVE_CURSOR();
+	
+	SET SI = HEAD;
+	OUT16();
+	
+	SET DH = 24;
+	SET DL = 0;
+	MOVE_CURSOR();
+	
+	SET SI = [ARG];
+	OUT16();
+	
+	SET BYTE[DONE] = 1;
+	RETURN;
+
+PUBLIC MOVE_CURSOR;
+DEF MOVE_CURSOR();
+	SET BH = 0;
+	SET AH = 2;
+	INT(10H);
+	RETURN;
+
+INCLUDE STDIO.INC;

@@ -1,0 +1,44 @@
+#
+ Ramenen - High Performance operating system for the 80386 
+	By Novixx Systems
+		If you worked on this file, add yourself
+		to the CREDITS file in the root.
+;
+
+# External variables ;
+# STRINGS.LLL ;
+EXTERN BOOTING;
+EXTERN MENU_MAIN;
+EXTERN bootdev;
+
+VAR INFINITY == 1;
+
+# Main Routine ;
+PUBLIC _main;
+DEF _main();
+	ASM *CLI*;
+	SET AX = 0;
+	SET SS = AX;
+	SET SP = 0FFFFh;
+	ASM *STI*;
+	ASM *CLD*;
+
+	#
+	Set Segment to 2000H (kernel entry segment)
+	;
+	SEGMENT(2000H);
+	
+	SET BYTE[bootdev] = DL;
+	
+    # Disable VGA cursor ;
+    SET AH = 1;
+    SET CX = 0x2607;
+    INT(10H);
+
+	# Jump to desktop/menu ;
+	MENU_MAIN();
+
+	DO WHILE BYTE[INFINITY] = 1;
+	OD;
+
+INCLUDE STDIO.INC;

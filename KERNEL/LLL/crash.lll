@@ -1,0 +1,49 @@
+#
+ Ramenen - High Performance operating system for the 80386 
+	By Novixx Systems
+		If you worked on this file, add yourself
+		to the CREDITS file in the root.
+	
+	
+CRASH.LLL MODIFICATION HISTORY:
+	08/11/22 Created
+	08/12/22 Add newline
+;
+EXTERN MOVE_CURSOR;
+EXTERN ARGA;
+EXTERN ARG;
+
+PUBLIC os_fatal_error;
+DEF os_fatal_error();
+	SET DH = 0;
+	SET DL = 0;
+	MOVE_CURSOR();
+
+	ASM *pusha*;
+
+	# Draw error screen ;
+	SET AH = 09H;
+	SET BH = 0;
+	SET CX = 2000;
+	SET BL = 00011111b;
+	SET AL = 0x20;
+	INT(10H);
+	ASM *popa*;
+
+	SET DH = 0;
+	SET DL = 0;
+	MOVE_CURSOR();
+	# SOR (Save-Our-Ramenen) screen ;
+	SET SI = msg_inform;
+	OUT16();
+	SET SI = [ARG];
+	OUT16();
+
+	GOTO $;
+
+	
+VAR msg_inform == 'A problem has been detected and Ramenen has',13,10,'been shutdown to avoid damage to your files.',13,10,0;
+
+
+
+INCLUDE STDIO.INC;

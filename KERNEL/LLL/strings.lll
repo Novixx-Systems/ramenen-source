@@ -1,0 +1,10 @@
+#
+ Ramenen - High Performance operating system for the 80386 
+	By Novixx Systems
+		If you worked on this file, add yourself
+		to the CREDITS file in the root.
+;
+
+PUBLIC BOOTING == "Starting Ramenen...",0;
+PUBLIC BOTT == "Version 2.5",3,0;
+PUBLIC HEAD == "Ramenen ",0;

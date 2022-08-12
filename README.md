@@ -8,3 +8,7 @@ Building requires L+++, which is in the UTILS folder, just copy UTILS\Novixx dir
 If you are going to create a new L+++ source file, use the LLL extension.
 
 If you are going to create a new Assembly source file, use the ASM extension.
+
+# Running Ramenen
+
+    qemu-system-i386 -fda floppy.img

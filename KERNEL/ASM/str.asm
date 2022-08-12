@@ -6,6 +6,7 @@ global os_string_lowercase
 global os_string_compare
 global os_string_chomp
 global os_string_copy
+global os_string_to_int
 global os_bcd_to_int
 	fmt_12_24	db 0		; Non-zero = 24-hr format
 

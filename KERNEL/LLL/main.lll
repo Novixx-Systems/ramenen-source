@@ -9,12 +9,16 @@
 # STRINGS.LLL ;
 EXTERN BOOTING;
 EXTERN MENU_MAIN;
+EXTERN RMN_INTERRUPT;
+EXTERN kernel_new_interrupt;
 EXTERN bootdev;
 
 VAR INFINITY == 1;
 
 # Main Routine ;
 PUBLIC _main;
+PUBLIC OUT16;
+PUBLIC SCAN16;
 DEF _main();
 	ASM *CLI*;
 	SET AX = 0;
@@ -34,6 +38,12 @@ DEF _main();
     SET AH = 1;
     SET CX = 0x2607;
     INT(10H);
+	
+	# Set up interrupt 25h ;
+	SET CX = 0x25;
+	# See INT.LLL ;
+	SET SI = RMN_INTERRUPT;
+	kernel_new_interrupt();
 
 	# Jump to desktop/menu ;
 	MENU_MAIN();

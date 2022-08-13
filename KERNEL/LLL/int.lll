@@ -1,0 +1,26 @@
+PUBLIC RMN_INTERRUPT;
+EXTERN OUT16;
+EXTERN SCAN16;
+
+DEF RMN_INTERRUPT();
+	#
+		INT 25H / BL = 0: Print String
+		in  (SI = string to print)
+		out (none)
+	;
+	IF BL = 0;
+		OUT16();
+		ASM *IRET*;
+	FI;
+	#
+		INT 25H / BL = 1: User Input
+		in  (AX = buffer)
+		out (AL = Last Key Pressed)
+	;
+	IF BL = 1;
+		SCAN16();
+		ASM *IRET*;
+	FI;
+	ASM *IRET*;
+	# If we are somehow here without calling int 25h, return ;
+	RETURN;

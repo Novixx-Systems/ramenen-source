@@ -1,0 +1,12 @@
+PUBLIC _main;
+
+VAR HELLO == "Hi world!",0;
+
+DEF _main();
+	SET SI = HELLO;
+	SET BL = 0;
+	INT(0x25);
+	SET AX = 0;
+	INT(0x16);
+	RETURN;
+	

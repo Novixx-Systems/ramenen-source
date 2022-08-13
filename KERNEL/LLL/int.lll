@@ -1,3 +1,10 @@
+#
+ Ramenen - High Performance operating system for the 80386 
+	By Novixx Systems
+		If you worked on this file, add yourself
+		to the CREDITS file in the root.
+;
+
 PUBLIC RMN_INTERRUPT;
 EXTERN OUT16;
 EXTERN SCAN16;

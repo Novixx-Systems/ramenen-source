@@ -8,6 +8,8 @@
 PUBLIC RMN_INTERRUPT;
 EXTERN OUT16;
 EXTERN SCAN16;
+EXTERN os_create_file;
+EXTERN os_write_file;
 
 DEF RMN_INTERRUPT();
 	#
@@ -26,6 +28,26 @@ DEF RMN_INTERRUPT();
 	;
 	IF BL = 1;
 		SCAN16();
+		ASM *IRET*;
+	FI;
+	#
+		INT 25H / BL = 2: Create File
+		in  (AX = filename)
+		out (none)
+	;
+	IF BL = 2;
+		os_create_file();
+		ASM *IRET*;
+	FI;
+	#
+		INT 25H / BL = 3: Write File
+		in  (AX = filename, CX = data buffer, DX = bytes to write)
+		out (BX = CX, CX = DX)
+	;
+	IF BL = 2;
+		SET BX = CX;
+		SET CX = DX;
+		os_write_file();
 		ASM *IRET*;
 	FI;
 	ASM *IRET*;

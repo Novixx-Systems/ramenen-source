@@ -20,6 +20,8 @@ global os_get_device
 global os_get_file_list
 global os_load_file
 global bootdev
+global os_create_file
+global os_write_file
 
 %define disk_buffer 24576
 
